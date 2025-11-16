@@ -1,44 +1,70 @@
-// src/services/auth.api.ts
-import type { LoginParams } from '@/interface/user/login';
+// src/api/auth.api.ts
 import axios from 'axios';
 
-// Create an axios instance with the base URL
-export const apiClient = axios.create({
-  baseURL: '/api',
+/**
+ * DEV: keep baseURL as '/api' so Vite dev proxy picks it and rewrites to /api/v1 on the backend.
+ * PROD: you can override VITE_API_BASE in production env to point to the real backend host.
+ */
+const apiClient = axios.create({
+  baseURL:  '/api',
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000,
 });
 
-/**
- * @description Login API call
- * @param data - The login credentials (username, password)
- * @returns A promise with the login response, typically containing an access_token.
- */
-export const loginApi = (data: LoginParams) => {
-  // The API expects the data in a 'form-data' format for login.
-  // We'll use URLSearchParams to create this format.
-  const formData = new URLSearchParams();
-  formData.append('phone', data.phone);
-  formData.append('password', data.password);
-  return apiClient.post('/auth/login', {
-    phone: data.phone,
-    password: data.password,
-  });
+// helper to set token at runtime
+export const setAuthToken = (token?: string | null) => {
+  if (token) {
+    apiClient.defaults.headers.common.Authorization = `Bearer ${token}`;
+  } else {
+    delete apiClient.defaults.headers.common.Authorization;
+  }
 };
 
-/**
- * @description Get current user data API call
- * @param token - The user's access tokenf
- * @returns A promise with the user's information.
- */
-export const getMeApi = (token: string) => {
-  return apiClient.get('/auth/me', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
+console.log('[apiClient] baseURL=', apiClient.defaults.baseURL);
+apiClient.interceptors.request.use(cfg => {
+  console.log('[api request] url=', cfg.url, 'headers=', cfg.headers);
+  return cfg;
+});
 
-// You can add other API functions here as needed
-// e.g., sendSignupOtpApi, verifySignupOtpApi, etc.
+apiClient.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    // central place to handle 401 if needed
+    const status = error?.response?.status;
+    if (status === 401) {
+      // caller can also handle 401, but you could emit global event or redirect here
+    }
+    return Promise.reject(error);
+  },
+);
+
+/** Auth endpoints — note these are relative to baseURL '/api' in dev */
+export const loginApi = (data: { phone: string; password: string }) =>
+  apiClient.post('/auth/login', data);
+
+export const getMeApi = () => apiClient.get('/auth/me');
+
+export const changePasswordApi = (payload: { old_password: string; new_password: string }) =>
+  apiClient.post('/auth/change-password', payload);
+
+export const resetPasswordApi = (payload: any) =>
+  apiClient.post('/auth/reset-password', payload);
+
+export const sendLoginOtpApi = (payload: { phone: string }) =>
+  apiClient.post('/auth/login/send-otp', payload);
+
+export const verifyLoginOtpApi = (payload: any) =>
+  apiClient.post('/auth/login/verify-otp', payload);
+
+export const resendLoginOtpApi = (payload: { phone: string }) =>
+  apiClient.post('/auth/login/resend-otp', payload);
+
+export const sendSignupOtpApi = (payload: { phone: string }) =>
+  apiClient.post('/auth/signup/send-otp', payload);
+
+export const verifySignupOtpApi = (payload: any) =>
+  apiClient.post('/auth/signup/verify-otp', payload);
+
+export default apiClient;

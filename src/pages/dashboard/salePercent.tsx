@@ -126,7 +126,7 @@ const SalePercent: FC<{ loading: boolean }> = ({ loading }) => {
               return (
                 <List.Item>
                   <Badge color={COLORS[index]} />
-                  <span>{item.name[locale]}</span> | <span>{item.value}</span> <span>¥ {percent}</span>
+                  {/* <span>{item.name[locale]}</span> | <span>{item.value}</span> <span>¥ {percent}</span> */}
                 </List.Item>
               );
             }}

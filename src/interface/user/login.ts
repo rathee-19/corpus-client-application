@@ -11,6 +11,7 @@ export interface LoginResult {
   token: string;
   username: string;
   role: Role;
+  user_id: string;
 }
 
 export interface LogoutParams {

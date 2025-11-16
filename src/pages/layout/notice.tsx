@@ -1,3 +1,4 @@
+// src/pages/layout/notice.tsx
 import type { Notice } from '@/interface/layout/notice.interface';
 import type { FC } from 'react';
 
@@ -19,7 +20,7 @@ const HeaderNoticeComponent: FC = () => {
   const [visible, setVisible] = useState(false);
   const [noticeList, setNoticeList] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(false);
-  const { noticeCount } = useSelector(state => state.user);
+  const { noticeCount } = useSelector((state: any) => state.user);
   const { formatMessage } = useLocale();
 
   const noticeListFilter = <T extends Notice['type']>(type: T) => {
@@ -28,16 +29,28 @@ const HeaderNoticeComponent: FC = () => {
 
   // loads the notices belonging to logged in user
   // and sets loading flag in-process
-  const getNotice = async () => {
+  const getNotice = async (mountedRef: { current: boolean }) => {
     setLoading(true);
-    const { status, result } = await getNoticeList();
-
-    setLoading(false);
-    status && setNoticeList(result);
+    try {
+      const { status, result } = await getNoticeList();
+      if (mountedRef.current) {
+        setLoading(false);
+        status && setNoticeList(result || []);
+      }
+    } catch (err) {
+      if (mountedRef.current) {
+        setLoading(false);
+        console.error('getNotice failed', err);
+      }
+    }
   };
 
   useEffect(() => {
-    getNotice();
+    const mountedRef = { current: true };
+    getNotice(mountedRef);
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   const tabs = (

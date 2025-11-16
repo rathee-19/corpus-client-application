@@ -1,3 +1,4 @@
+// src/pages/layout/header.tsx
 import type { FC } from 'react';
 import { LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined, UserOutlined } from '@ant-design/icons';
 import { Dropdown, Layout, theme as antTheme, Tooltip } from 'antd';
@@ -15,13 +16,12 @@ import AntdSvg from '@/assets/logo/antd.svg';
 import ReactSvg from '@/assets/logo/react.svg';
 import { LocaleFormatter, useLocale } from '@/locales';
 import { setGlobalState } from '@/stores/global.store';
-import { setUserItem } from '@/stores/user.store';
+import { setUser } from '@/stores/user.store';
 
-import { logoutAsync } from '../../stores/user.action';
+import { logout } from '@/stores/user.action';
 import HeaderNoticeComponent from './notice';
 import { useEffect, useState } from 'react';
-import { getCategoriesApi } from '../../api/categories.api';
-
+import { getCategoriesApi } from '@/api/categories.api';
 
 const { Header } = Layout;
 
@@ -33,27 +33,33 @@ interface HeaderProps {
 type Action = 'userInfo' | 'userSetting' | 'logout';
 
 const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
-  // make selector return the user slice, including userInfo and token
+  // user slice
   const { logged, locale, device, userInfo, token } = useSelector((state: any) => state.user);
-  // rename theme token variable so it doesn't conflict with auth token names
-  const { theme } = useSelector((state: any) => state.global);
-  const themeToken = antTheme.useToken();
-  const { token: themeTokens } = themeToken;
+  const global = useSelector((state: any) => state.global);
+  const themeTokenObj = antTheme.useToken();
+  const { token: themeTokens } = themeTokenObj;
 
   const dispatch = useDispatch();
   const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
+    let mounted = true;
+  
     if (logged && token) {
-      getCategoriesApi(token)
+      getCategoriesApi()
         .then(res => {
-          setCategories(res.data);
+          if (mounted) setCategories(res.data);
         })
         .catch(err => {
-          console.error('Failed to fetch categories:', err);
+          if (mounted) console.error('Failed to fetch categories:', err);
         });
     }
+  
+    return () => {
+      mounted = false;  // cleanup
+    };
   }, [logged, token]);
+  
 
   const navigate = useNavigate();
   const { formatMessage } = useLocale();
@@ -65,7 +71,7 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
       case 'userSetting':
         return;
       case 'logout':
-        const res = Boolean(await dispatch(logoutAsync()));
+        const res = Boolean(await dispatch(logout() as any));
         res && navigate('/login');
         return;
     }
@@ -76,12 +82,17 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
   };
 
   const selectLocale = ({ key }: { key: any }) => {
-    dispatch(setUserItem({ locale: key }));
+    dispatch(
+      setUser({
+        locale: key,
+      }),
+    );
     localStorage.setItem('locale', key);
   };
 
   const onChangeTheme = () => {
-    const newTheme = themeTokens?.colorBgContainer && themeTokens?.colorBgContainer === 'dark' ? 'light' : 'dark';
+    // toggle theme via global store
+    const newTheme = global.theme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', newTheme);
     dispatch(
       setGlobalState({
@@ -91,7 +102,7 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
   };
 
   return (
-    <Header className="layout-page-header bg-2" style={{ backgroundColor: themeTokens.colorBgContainer }}>
+    <Header className="layout-page-header bg-2" style={{ backgroundColor: themeTokens?.colorBgContainer }}>
       {device !== 'MOBILE' && (
         <div className="logo" style={{ width: collapsed ? 80 : 200 }}>
           <img src={ReactSvg} alt="" style={{ marginRight: collapsed ? '2px' : '20px' }} />
@@ -104,12 +115,12 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
         </div>
         <div className="actions">
           <Tooltip
-          title={formatMessage({
-            id: theme === 'dark'
-              ? 'gloabal.tips.theme.lightTooltip'
-              : 'gloabal.tips.theme.darkTooltip',
-          })}
-          
+            title={formatMessage({
+              id:
+                global.theme === 'dark'
+                  ? 'gloabal.tips.theme.lightTooltip'
+                  : 'gloabal.tips.theme.darkTooltip',
+            })}
           >
             <span>
               {createElement(themeTokens ? SunSvg : MoonSvg, {
@@ -117,7 +128,9 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
               })}
             </span>
           </Tooltip>
+
           <HeaderNoticeComponent />
+
           <Dropdown
             menu={{
               onClick: info => selectLocale(info),
@@ -141,70 +154,64 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
               <LanguageSvg id="language-change" />
             </span>
           </Dropdown>
-          <Dropdown
-  menu={{
-    items: categories.map(cat => ({
-      key: cat.id,
-      label: cat.title || cat.name,
-    })),
-  }}
-  onOpenChange={(open) => {
-    if (open && token) {
-      getCategoriesApi(token)
-        .then((res) => {
-          setCategories(res.data);
-        })
-        .catch((err) => {
-          console.error('Failed to fetch categories:', err);
-        });
-    }
-  }}
->
-  <span style={{ marginRight: '16px', cursor: 'pointer' }}>
-    Categories
-  </span>
-</Dropdown>
 
+          <Dropdown
+            menu={{
+              items: categories.map((cat: any) => ({
+                key: cat.id,
+                label: cat.title || cat.name,
+              })),
+            }}
+            onOpenChange={(open) => {
+              if (open && token) {
+                getCategoriesApi()
+                  .then((res) => setCategories(res.data))
+                  .catch((err) => console.error('Failed to fetch categories:', err));
+              }
+            }}
+          >
+            <span style={{ marginRight: '16px', cursor: 'pointer' }}>
+              Categories
+            </span>
+          </Dropdown>
 
           {logged ? (
-  <Dropdown
-    menu={{
-      items: [
-        {
-          key: '1',
-          icon: <UserOutlined />,
-          label: (
-            <span onClick={() => navigate('/dashboard')}>
-              {userInfo?.name || <LocaleFormatter id="header.avator.account" />}
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: '1',
+                    icon: <UserOutlined />,
+                    label: (
+                      <span onClick={() => navigate('/dashboard')}>
+                        {userInfo?.name || <LocaleFormatter id="header.avator.account" />}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: '2',
+                    icon: <LogoutOutlined />,
+                    label: (
+                      <span onClick={() => onActionClick('logout')}>
+                        <LocaleFormatter id="header.avator.logout" />
+                      </span>
+                    ),
+                  },
+                ],
+              }}
+            >
+              <span className="user-action">
+                <img src={Avator} className="user-avator" alt="avator" />
+                <span style={{ marginLeft: '8px' }}>
+                  {userInfo?.name || 'User'}
+                </span>
+              </span>
+            </Dropdown>
+          ) : (
+            <span style={{ cursor: 'pointer' }} onClick={toLogin}>
+              {/* Rohan */}
             </span>
-          ),
-        },
-        {
-          key: '2',
-          icon: <LogoutOutlined />,
-          label: (
-            <span onClick={() => onActionClick('logout')}>
-              <LocaleFormatter id="header.avator.logout" />
-            </span>
-          ),
-        },
-      ],
-    }}
-  >
-    <span className="user-action">
-      <img src={Avator} className="user-avator" alt="avator" />
-      <span style={{ marginLeft: '8px' }}>
-        {userInfo?.name || 'User'}
-      </span>
-    </span>
-  </Dropdown>
-) : (
-  <span style={{ cursor: 'pointer' }} onClick={toLogin}>
-    {/* {formatMessage({ id: 'gloabal.tips.login' })} */}
-    Rohan
-  </span>
-)}
-
+          )}
         </div>
       </div>
     </Header>

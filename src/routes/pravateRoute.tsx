@@ -1,36 +1,18 @@
+// src/routes/pravateRoute.tsx
 import type { FC } from 'react';
-import type { RouteProps } from 'react-router';
-
-import { Button, Result } from 'antd';
+import React from 'react';
 import { useSelector } from 'react-redux';
-import { useLocation } from 'react-router';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
-import { useLocale } from '@/locales';
-
-const PrivateRoute: FC<RouteProps> = props => {
-  const { logged } = useSelector(state => state.user);
-  const navigate = useNavigate();
-  const { formatMessage } = useLocale();
+const PrivateRoute: FC = ({ children }: any) => {
+  const { logged } = useSelector((state: any) => state.user);
   const location = useLocation();
 
-  return logged ? (
-    (props.element as React.ReactElement)
-  ) : (
-    <Result
-      status="403"
-      title="403"
-      subTitle={formatMessage({ id: 'gloabal.tips.unauthorized' })}
-      extra={
-        <Button
-          type="primary"
-          onClick={() => navigate(`/login${'?from=' + encodeURIComponent(location.pathname)}`, { replace: true })}
-        >
-          {formatMessage({ id: 'gloabal.tips.goToLogin' })}
-        </Button>
-      }
-    />
-  );
+  // If authenticated, render children (the protected route)
+  if (logged) return children ?? null;
+
+  // Not authenticated: redirect to login and preserve return location in state
+  return <Navigate to="/login" state={{ from: location }} replace />;
 };
 
 export default PrivateRoute;

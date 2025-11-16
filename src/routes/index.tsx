@@ -32,11 +32,11 @@ const BusinessWithTabsPage = lazy(() => import(/* webpackChunkName: "with-tabs" 
 const routeList: RouteObject[] = [
   {
     path: '/login',
-    element: <WrapperRouteComponent element={<LoginPage />} titleId="title.login" />,
+    element: <LoginPage />,
   },
   {
     path: '/',
-    element: <WrapperRouteComponent element={<LayoutPage />} titleId="" />,
+    element: <WrapperRouteComponent element={<LayoutPage />} auth={true} />,
     children: [
       {
         path: '',
@@ -56,7 +56,7 @@ const routeList: RouteObject[] = [
       },
       {
         path: 'permission/route',
-        element: <WrapperRouteComponent element={<RoutePermission />} titleId="title.permission.route" auth />,
+        element: <WrapperRouteComponent element={<RoutePermission />} titleId="title.permission.route"  />,
       },
       {
         path: 'component/form',

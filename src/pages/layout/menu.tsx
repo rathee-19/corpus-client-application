@@ -1,11 +1,12 @@
-import type { MenuList } from '../../interface/layout/menu.interface';
+// src/pages/layout/menu.tsx
+import type { MenuList } from '@/interface/layout/menu.interface';
 import type { FC } from 'react';
 
 import { Menu } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { setUserItem } from '@/stores/user.store';
+import { setUser } from '@/stores/user.store';
 
 import { CustomIcon } from './customIcon';
 
@@ -19,7 +20,7 @@ interface MenuProps {
 
 const MenuComponent: FC<MenuProps> = props => {
   const { menuList, openKey, onChangeOpenKey, selectedKey, onChangeSelectedKey } = props;
-  const { device, locale } = useSelector(state => state.user);
+  const { device, locale } = useSelector((state: any) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -27,7 +28,7 @@ const MenuComponent: FC<MenuProps> = props => {
     return (
       <span style={{ display: 'flex', alignItems: 'center' }}>
         <CustomIcon type={menu.icon!} />
-        <span>{menu.label[locale]}</span>
+        <span>{menu.label[locale as 'zh_CN' | 'en_US']}</span>
       </span>
     );
   };
@@ -37,7 +38,7 @@ const MenuComponent: FC<MenuProps> = props => {
     navigate(path);
 
     if (device !== 'DESKTOP') {
-      dispatch(setUserItem({ collapsed: true }));
+      dispatch(setUser({ collapsed: true }));
     }
   };
 
@@ -62,7 +63,7 @@ const MenuComponent: FC<MenuProps> = props => {
               label: getTitle(menu),
               children: menu.children.map(child => ({
                 key: child.path,
-                label: child.label[locale],
+                label: child.label[locale as 'zh_CN' | 'en_US'],
               })),
             }
           : {

@@ -75,7 +75,7 @@ const TagsView: FC = () => {
           return {
             key: tag.path,
             closable: tag.closable,
-            label: tag.label[locale],
+            label: tag.label[locale as 'zh_CN' | 'en_US'],
           };
         })}
       />

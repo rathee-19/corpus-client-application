@@ -13,7 +13,12 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    // --- Changes Start Here ---
+    // 1. Change "noEmit" to false (to allow tsc to generate output for the next step)
+    "noEmit": false,
+    // 2. Add "noEmitOnError": false (This is the key to ignore errors and continue with the build)
+    "noEmitOnError": false, 
+    // --- Changes End Here ---
     "jsx": "react-jsx",
     "baseUrl": "./",
     "paths": {

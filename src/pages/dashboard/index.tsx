@@ -1,34 +1,29 @@
-import type { FC } from 'react';
-
-import './index.less';
-
-import { useEffect, useState } from 'react';
-
-import Overview from './overview';
-import SalePercent from './salePercent';
-import TimeLine from './timeLine';
+// src/pages/dashboard/index.tsx
+import React, { useState } from 'react';
+import ContentSelector, { ContentType } from './contentSelector';
+import UploadForm from './uploadForm';
 import HorizontalTools from './HorizontalTools';
 
-const DashBoardPage: FC = () => {
-  const [loading, setLoading] = useState(true);
-
-  // mock timer to mimic dashboard data loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(undefined as any);
-    }, 2000);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
+const DashBoardPage: React.FC = () => {
+  const [selected, setSelected] = useState<ContentType | null>(null);
 
   return (
     <div>
-      <HorizontalTools />
-      {/* <Overview loading={loading} />
-      <SalePercent loading={loading} />
-      <TimeLine loading={loading} /> */}
+      {/* <HorizontalTools /> */}
+      <div style={{ padding: 20 }}>
+        {!selected ? (
+          <ContentSelector onSelect={t => setSelected(t)} />
+        ) : (
+          <UploadForm
+            mediaType={selected}
+            onDone={(record) => {
+              console.log('record created', record);
+              setSelected(null);
+            }}
+            onCancel={() => setSelected(null)}
+          />
+        )}
+      </div>
     </div>
   );
 };

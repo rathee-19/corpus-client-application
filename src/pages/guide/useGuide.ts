@@ -1,3 +1,4 @@
+// src/pages/guide/useGuide.tsx
 import 'driver.js/dist/driver.min.css';
 import './index.less';
 
@@ -6,7 +7,7 @@ import { useRef } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useLocale } from '@/locales';
-import { setUserItem } from '@/stores/user.store';
+import { setUser } from '@/stores/user.store';
 
 export const useGuide = () => {
   const { formatMessage } = useLocale();
@@ -83,9 +84,10 @@ export const useGuide = () => {
         },
       ]);
 
+      // mark user as not new
       localStorage.setItem('newUser', 'false');
       dispatch(
-        setUserItem({
+        setUser({
           newUser: false,
         }),
       );

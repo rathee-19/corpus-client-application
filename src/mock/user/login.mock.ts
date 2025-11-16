@@ -9,5 +9,6 @@ mock.mock('/user/login', 'post', (config: any) => {
     token: '123abcdefg',
     username: body?.username,
     role: body?.username as Role,
+    user_id: '1',
   });
 });

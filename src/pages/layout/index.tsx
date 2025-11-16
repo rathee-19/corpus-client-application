@@ -1,15 +1,15 @@
+// src/pages/layout/index.tsx
 import type { MenuChild, MenuList } from '@/interface/layout/menu.interface';
 import type { FC } from 'react';
 
 import './index.less';
 
 import { Drawer, Layout, theme as antTheme } from 'antd';
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useLocation } from 'react-router';
 
-import { getMenuList } from '@/api/layout.api';
-import { setUserItem } from '@/stores/user.store';
+import { setUser } from '@/stores/user.store';
 import { getFirstPathCode } from '@/utils/getFirstPathCode';
 import { getGlobalState } from '@/utils/getGloabal';
 
@@ -22,11 +22,14 @@ const { Sider, Content } = Layout;
 const WIDTH = 992;
 
 const LayoutPage: FC = () => {
+  console.log('[LayoutPage] mounted');
+
   const location = useLocation();
   const [openKey, setOpenkey] = useState<string>();
   const [selectedKey, setSelectedKey] = useState<string>(location.pathname);
+  // ensure default array (so child components never see `undefined`)
   const [menuList, setMenuList] = useState<MenuList>([]);
-  const { device, collapsed, newUser } = useSelector(state => state.user);
+  const { device, collapsed, newUser } = useSelector((state: any) => state.user);
   const token = antTheme.useToken();
 
   const isMobile = device === 'MOBILE';
@@ -42,13 +45,16 @@ const LayoutPage: FC = () => {
 
   const toggle = () => {
     dispatch(
-      setUserItem({
+      setUser({
         collapsed: !collapsed,
       }),
     );
   };
 
-  const initMenuListAll = (menu: MenuList) => {
+  const initMenuListAll = (menu?: MenuList) => {
+    // Defensive: if menu is not provided or not an array, return empty array.
+    if (!Array.isArray(menu)) return [];
+
     const MenuListAll: MenuChild[] = [];
 
     menu.forEach(m => {
@@ -64,22 +70,8 @@ const LayoutPage: FC = () => {
     return MenuListAll;
   };
 
-  const fetchMenuList = useCallback(async () => {
-    const { status, result } = await getMenuList();
-
-    if (status) {
-      setMenuList(result);
-      dispatch(
-        setUserItem({
-          menuList: initMenuListAll(result),
-        }),
-      );
-    }
-  }, [dispatch]);
-
-  useEffect(() => {
-    fetchMenuList();
-  }, [fetchMenuList]);
+  // (You commented out fetchMenuList — fine for now.)
+  // If you later re-enable fetching, just setMenuList(result) and update user.menuList similarly.
 
   useEffect(() => {
     window.onresize = () => {
@@ -88,7 +80,7 @@ const LayoutPage: FC = () => {
       const needCollapse = rect.width < WIDTH;
 
       dispatch(
-        setUserItem({
+        setUser({
           device,
           collapsed: needCollapse,
         }),
@@ -114,13 +106,7 @@ const LayoutPage: FC = () => {
             collapsed={collapsed}
             breakpoint="md"
           >
-            {/* <MenuComponent
-              menuList={menuList}
-              openKey={openKey}
-              onChangeOpenKey={k => setOpenkey(k)}
-              selectedKey={selectedKey}
-              onChangeSelectedKey={k => setSelectedKey(k)}
-            /> */}
+            {/* Menu component can be placed here */}
           </Sider>
         ) : (
           <Drawer
