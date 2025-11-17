@@ -15,7 +15,7 @@
     "isolatedModules": true,
     // --- Changes Start Here ---
     // 1. Change "noEmit" to false (to allow tsc to generate output for the next step)
-    "noEmit": false,
+    "noEmit": true,
     // 2. Add "noEmitOnError": false (This is the key to ignore errors and continue with the build)
     "noEmitOnError": false, 
     // --- Changes End Here ---

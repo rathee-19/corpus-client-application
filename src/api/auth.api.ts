@@ -6,7 +6,8 @@ import axios from 'axios';
  * PROD: you can override VITE_API_BASE in production env to point to the real backend host.
  */
 const apiClient = axios.create({
-  baseURL:  '/api',
+  // baseURL: import.meta.env.PROD ? ((import.meta.env.VITE_API_BASE as string) || '/api') : '/api',
+  baseURL: import.meta.env.VITE_API_BASE as string || '/api',
   headers: {
     'Content-Type': 'application/json',
   },

@@ -1,0 +1,185 @@
+// -----------------------------------------------
+// FIXED COLORS (not from AntD)
+// Light mode palette
+// -----------------------------------------------
+@text-color-light:        #1f2937;  // dark gray text
+@text-secondary-light:    #6b7280;  // secondary text
+@card-bg-light:           #ffffff;
+@card-border-light:       #e5e7eb;
+
+// Icon accent colors - LIGHT MODE
+@text-accent-light:       #3b82f6;  // blue
+@audio-accent-light:      #ef4444;  // red
+@video-accent-light:      #10b981;  // green
+@image-accent-light:      #f59e0b;  // amber
+@doc-accent-light:        #8b5cf6;  // purple
+
+// -----------------------------------------------
+// DARK MODE colors
+// -----------------------------------------------
+@text-color-dark:         #e5e7eb;
+@text-secondary-dark:     #9ca3af;
+@card-bg-dark:            #1f1f1f;
+@card-border-dark:        #2a2a2a;
+
+// Icon accent colors - DARK MODE (muted)
+@text-accent-dark:        #60a5fa;  // softer blue
+@audio-accent-dark:       #f87171;  // soft red
+@video-accent-dark:       #34d399;  // soft green
+@image-accent-dark:       #fbbf24;  // softer amber
+@doc-accent-dark:         #a78bfa;  // soft purple
+
+
+// ------------------------------
+// BASE COMPONENT
+// ------------------------------
+.contentSelector {
+  &-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 20px;
+    box-sizing: border-box;
+  }
+
+  &-header {
+    margin-bottom: 18px;
+
+    .title {
+      font-size: 22px;
+      font-weight: 600;
+      color: @text-color-light;
+    }
+
+    .lead {
+      margin-top: 6px;
+      font-size: 13px;
+      color: @text-secondary-light;
+    }
+  }
+
+  &-grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  // CARD BASE
+  &-card {
+    background: @card-bg-light;
+    border: 1px solid @card-border-light;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+    min-height: 170px;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .titleText {
+      font-size: 16px;
+      font-weight: 600;
+      color: @text-color-light;
+    }
+
+    .subText {
+      font-size: 12px;
+      color: @text-secondary-light;
+    }
+
+    .desc {
+      margin-top: 10px;
+      font-size: 12px;
+      color: @text-secondary-light;
+      flex: 1;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 4px 8px;
+      background: #f3f4f6;
+      border-radius: 999px;
+      color: @text-secondary-light;
+    }
+
+    .footer {
+      margin-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+
+      .selectBtn {
+        border: none;
+        background: transparent;
+        color: @text-accent-light;
+        cursor: pointer;
+        font-weight: 600;
+        border-radius: 6px;
+        padding: 4px 8px;
+
+        &:hover {
+          background: fade(@text-accent-light, 12%);
+        }
+      }
+    }
+  }
+
+  // -------------------------
+  // LIGHT MODE ACCENTS
+  // -------------------------
+  &-card--text     .icon { background: fade(@text-accent-light, 12%);  color: @text-accent-light; }
+  &-card--audio    .icon { background: fade(@audio-accent-light, 12%); color: @audio-accent-light; }
+  &-card--video    .icon { background: fade(@video-accent-light, 12%); color: @video-accent-light; }
+  &-card--image    .icon { background: fade(@image-accent-light, 12%); color: @image-accent-light; }
+  &-card--document .icon { background: fade(@doc-accent-light, 12%);   color: @doc-accent-light; }
+
+
+  // -------------------------
+  // DARK MODE OVERRIDES
+  // -------------------------
+  body.dark & {
+    &-header {
+      .title { color: @text-color-dark; }
+      .lead  { color: @text-secondary-dark; }
+    }
+
+    &-card {
+      background: @card-bg-dark;
+      border-color: @card-border-dark;
+
+      .titleText   { color: @text-color-dark; }
+      .subText     { color: @text-secondary-dark; }
+      .desc        { color: @text-secondary-dark; }
+      .pill        { background: #2f2f2f; color: @text-secondary-dark; }
+      .selectBtn   { color: @text-accent-dark; }
+
+      .selectBtn:hover {
+        background: fade(@text-accent-dark, 10%);
+      }
+    }
+
+    // DARK MODE ACCENTS
+    &-card--text     .icon { background: fade(@text-accent-dark, 10%);  color: @text-accent-dark; }
+    &-card--audio    .icon { background: fade(@audio-accent-dark, 10%); color: @audio-accent-dark; }
+    &-card--video    .icon { background: fade(@video-accent-dark, 10%); color: @video-accent-dark; }
+    &-card--image    .icon { background: fade(@image-accent-dark, 10%); color: @image-accent-dark; }
+    &-card--document .icon { background: fade(@doc-accent-dark, 10%);   color: @doc-accent-dark; }
+  }
+}

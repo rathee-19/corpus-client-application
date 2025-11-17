@@ -82,23 +82,7 @@ const HeaderComponent = ({ collapsed, toggle }) => {
                                         : 'gloabal.tips.theme.darkTooltip',
                                 }), children: _jsx("span", { children: createElement(themeTokens ? SunSvg : MoonSvg, {
                                         onClick: onChangeTheme,
-                                    }) }, void 0) }, void 0), _jsx(HeaderNoticeComponent, {}, void 0), _jsx(Dropdown, { menu: {
-                                    onClick: info => selectLocale(info),
-                                    items: [
-                                        {
-                                            key: 'zh_CN',
-                                            icon: _jsx(ZhCnSvg, {}, void 0),
-                                            disabled: locale === 'zh_CN',
-                                            label: '简体中文',
-                                        },
-                                        {
-                                            key: 'en_US',
-                                            icon: _jsx(EnUsSvg, {}, void 0),
-                                            disabled: locale === 'en_US',
-                                            label: 'English',
-                                        },
-                                    ],
-                                }, children: _jsx("span", { children: _jsx(LanguageSvg, { id: "language-change" }, void 0) }, void 0) }, void 0), _jsx(Dropdown, { menu: {
+                                    }) }, void 0) }, void 0), _jsx(HeaderNoticeComponent, {}, void 0),  _jsx(Dropdown, { menu: {
                                     items: categories.map((cat) => ({
                                         key: cat.id,
                                         label: cat.title || cat.name,

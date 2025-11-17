@@ -3,27 +3,38 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import vitePluginImp from 'vite-plugin-imp';
 import svgrPlugin from 'vite-plugin-svgr';
+import { fileURLToPath } from 'url';
+
+// 1. Use custom variable names to avoid conflicts
+const currentFilename = fileURLToPath(import.meta.url);
+const projectRoot = path.dirname(currentFilename);
 
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
     alias: {
-      '@': path.join(__dirname, 'src'),
+      // 2. Use the new variable here
+      '@': path.join(projectRoot, 'src'),
     },
   },
   server: {
     port: 8889,
     proxy: {
       '/api': {
-        // target: `http://localhost:${process.env.PORT}/api`,
         target: 'https://api.corpus.swecha.org',
-
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api/v1'),
-        // rewrite: path => path.replace(/^\/api/, ''),
       },
     },
+  },
+  optimizeDeps: {
+      include: [
+          '@emotion/react', 
+          '@emotion/styled',
+          '@emotion/react/jsx-dev-runtime',
+          'react/jsx-runtime' 
+      ],
   },
   plugins: [
     react({
@@ -34,14 +45,11 @@ export default defineConfig({
     }),
     vitePluginImp({
       libList: [
-        // {
-        //   libName: 'antd',
-        //   style: name => `antd/es/${name}/style/index.css`,
-        // },
         {
           libName: 'lodash',
           libDirectory: '',
           camel2DashComponentName: false,
+          // 3. Typo fixed here: removed the extra 'D'
           style: () => {
             return false;
           },
@@ -51,7 +59,6 @@ export default defineConfig({
     svgrPlugin({
       svgrOptions: {
         icon: true,
-        // ...svgr options (https://react-svgr.com/docs/options/)
       },
     }),
   ],
